@@ -1,0 +1,6 @@
+email_subject:
+  display: Email Subject
+  type: text
+redirect:
+  display: Redirect
+  type: link

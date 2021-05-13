@@ -1,0 +1,42 @@
+<section>
+    <div>
+        {{ if get:logged_out }}
+            <h1 class="text-center">Goodbye 👋</h1>
+            <p class="px-2 text-center">Want to get back in? Enter your email and we’ll send a link to automagically&nbsp;login.</p>
+        {{ else }}
+            <h1 class="text-center">Hello there! 👋</h1>
+            <p class="px-2 text-center">Enter your email and we’ll send a link to automagically&nbsp;login.</p>
+        {{ /if }}
+
+        {{ session }}
+            {{ if error }}
+                <div class="my-3 text-small w-100">
+                    <button type="button" class="close" data-dismiss="alert">
+                        <i class="fal fa-times-circle text-danger"></i>
+                    </button>
+                    {{ error }}
+                </div>
+            {{ elseif success }}
+                <div class="mt-2 alert alert-success text-small w-100">
+                    <button type="button" class="close" data-dismiss="alert"><i class="fal fa-times-circle text-success"></i></button>
+                    <h6 class="pb-1 alert-heading">Check your inbox:</h6>
+                    <hr class="mt-2 mb-2">
+                    <ul class="pt-0 mb-1">
+                        <li>We just emailed a confirmation link to {{ email }}</li>
+                        <li>Click the link, and you’ll be sent directly to correct page</li>
+                    </ul>
+                </div>
+            {{ /if }}
+        {{ /session }}
+
+        <form action="{{ magic_link:url }}{{ if get:redirect }}?redirect={{ get:redirect }}{{ /if }}" method="post" class="px-4">
+            {{ csrf_field }}
+            <div class="form-group">
+                <input class="form-control" type="email" placeholder="Email" name="email" />
+            </div>
+            <button class="py-2" role="button" type="submit">
+                Sign in with Email
+            </button>
+        </form>
+    </div>
+  </section>
