@@ -8,6 +8,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Statamic\Auth\User;
+use Statamic\Facades\GlobalSet;
+use Statamic\Facades\Site;
 use TransformStudios\MagicLink\Exceptions\MissingRedirectException;
 
 class MagicLink extends Mailable
@@ -24,8 +26,8 @@ class MagicLink extends Mailable
      */
     public function __construct(User $user, ?string $redirect)
     {
-        $this->user = $user;
         $this->redirect = $redirect;
+        $this->user = $user;
     }
 
     /**
@@ -35,14 +37,10 @@ class MagicLink extends Mailable
      */
     public function build()
     {
-        $generator = tap(new LoginUrl($this->user), function (LoginUrl $generator) {
-            $generator->setRedirectUrl($this->redirect());
-        });
-
         return $this
             ->subject(config('magic-link.email_subject', 'Your magic link is here...'))
             ->view('magic-link::mail.login-link')
-            ->with(['url' => $generator->generate()]);
+            ->addData();
     }
 
     private function redirect()
@@ -52,5 +50,35 @@ class MagicLink extends Mailable
         }
 
         return ResolveRedirect::resolve($redirect);
+    }
+
+    private function addData(): self
+    {
+        $generator = tap(new LoginUrl($this->user), function (LoginUrl $generator) {
+            $generator->setRedirectUrl($this->redirect());
+        });
+
+        return $this->with(array_merge(
+            $this->getGlobalsData(),
+            ['url' => $generator->generate()]
+        ));
+    }
+
+    private function getGlobalsData(): array
+    {
+        $data = [];
+        $site = Site::current();
+
+        foreach (GlobalSet::all() as $global) {
+            if (! $global->existsIn($site->handle())) {
+                continue;
+            }
+
+            $global = $global->in($site->handle());
+
+            $data[$global->handle()] = $global->toAugmentedArray();
+        }
+
+        return $data;
     }
 }
