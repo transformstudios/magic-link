@@ -38,6 +38,7 @@ class MagicLink extends Mailable
     public function build()
     {
         return $this
+            ->to($this->user->email())
             ->subject(config('magic-link.email_subject', 'Your magic link is here...'))
             ->view('magic-link::mail.login-link')
             ->addData();
