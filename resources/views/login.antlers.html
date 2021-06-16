@@ -26,6 +26,15 @@
                         <li>Click the link, and you’ll be sent directly to correct page</li>
                     </ul>
                 </div>
+            {{ elseif not_found }}
+                <div class="mt-2 alert alert-warning text-small w-100">
+                    <button type="button" class="close" data-dismiss="alert"><i class="text-black fal fa-times-circle"></i></button>
+                    <h6 class="pb-1 alert-heading">No Account Found:</h6>
+                    <hr class="mt-2 mb-2">
+                    <ul class="pt-0 mb-1">
+                        <li>It seems like you don't have an account currently setup, please create one.</li>
+                    </ul>
+                </div>
             {{ /if }}
         {{ /session }}
 

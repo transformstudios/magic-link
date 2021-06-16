@@ -20,7 +20,13 @@ class EmailMagicLinkController extends Controller
         $this->validate($request, ['email' => 'required|email']);
 
         /* @var \Statamic\Auth\User */
-        abort_unless($user = UserAPI::findByEmail($request->email), 404);
+        if (! $user = UserAPI::findByEmail($request->email)) {
+            return back()->with(
+                [
+                    'not_found' => true,
+                ]
+            );
+        }
 
         Mail::to($user->email())->send(
             new MagicLink($user, $request->input('redirect')
