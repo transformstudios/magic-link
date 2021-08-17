@@ -2,7 +2,7 @@
     "name": "transformstudios/magic-link",
     "require": {
         "php": "^7.4 || ^8.0",
-        "edalzell/forma": "^0.8",
+        "edalzell/forma": "^1.0",
         "grosv/laravel-passwordless-login": "^1.6",
         "laravel/framework": "^8.0",
         "statamic/cms": "3.1.*"
