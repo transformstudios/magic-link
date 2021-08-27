@@ -5,7 +5,7 @@
         "edalzell/forma": "^1.0",
         "grosv/laravel-passwordless-login": "^1.6",
         "laravel/framework": "^8.0",
-        "statamic/cms": "3.1.*"
+        "statamic/cms": "^3.1"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.2",
