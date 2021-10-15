@@ -2,14 +2,16 @@
 
 namespace TransformStudios\MagicLink\Mail;
 
-use Facades\Statamic\Routing\ResolveRedirect;
-use Grosv\LaravelPasswordlessLogin\LoginUrl;
+use Grosv\LaravelPasswordlessLogin\PasswordlessLogin;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Statamic\Auth\User;
 use Statamic\Facades\GlobalSet;
 use Statamic\Facades\Site;
+use Statamic\Facades\User as UserFacade;
+use Statamic\Routing\ResolveRedirect;
 use TransformStudios\MagicLink\Exceptions\MissingRedirectException;
 
 class MagicLink extends Mailable
@@ -24,10 +26,10 @@ class MagicLink extends Mailable
      *
      * @return void
      */
-    public function __construct($user, ?string $redirect)
+    public function __construct(User|Authenticatable $user, ?string $redirect)
     {
         $this->redirect = $redirect;
-        $this->user = \Statamic\Facades\User::fromUser($user);
+        $this->user = UserFacade::fromUser($user);
     }
 
     /**
@@ -44,31 +46,21 @@ class MagicLink extends Mailable
             ->addData();
     }
 
-    private function redirect()
-    {
-        if (! $redirect = $this->redirect ?? config('magic-link.redirect')) {
-            throw new MissingRedirectException();
-        }
-
-        return ResolveRedirect::resolve($redirect);
-    }
-
     private function addData(): self
     {
-        if ($this->user instanceof \Statamic\Auth\Eloquent\User) {
-            $user = $this->user->model();
-        } else {
-            $user = $this->user;
-        }
-
-        $generator = tap(new LoginUrl($user), function (LoginUrl $generator) {
-            $generator->setRedirectUrl($this->redirect());
-        });
-
         return $this->with(array_merge(
             $this->getGlobalsData(),
-            ['url' => $generator->generate()]
+            [
+                'url' => PasswordlessLogin::forUser($this->getUser())
+                    ->setRedirectUrl($this->redirect())
+                    ->generate(),
+            ]
         ));
+    }
+
+    private function getUser(): Authenticatable|User
+    {
+        return $this->user instanceof \Statamic\Auth\Eloquent\User ? $this->user->model() : $this->user;
     }
 
     private function getGlobalsData(): array
@@ -87,5 +79,14 @@ class MagicLink extends Mailable
         }
 
         return $data;
+    }
+
+    private function redirect()
+    {
+        if (! $redirect = $this->redirect ?? config('magic-link.redirect')) {
+            throw new MissingRedirectException();
+        }
+
+        return (new ResolveRedirect)($redirect);
     }
 }
