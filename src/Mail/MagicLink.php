@@ -19,16 +19,14 @@ class MagicLink extends Mailable
     use Queueable, SerializesModels;
 
     private User $user;
-    private ?string $redirect = null;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(User|Authenticatable $user, ?string $redirect)
+    public function __construct(Authenticatable $user, private ?string $redirect)
     {
-        $this->redirect = $redirect;
         $this->user = UserFacade::fromUser($user);
     }
 
@@ -58,7 +56,7 @@ class MagicLink extends Mailable
         ));
     }
 
-    private function getUser(): Authenticatable|User
+    private function getUser(): Authenticatable
     {
         return $this->user instanceof \Statamic\Auth\Eloquent\User ? $this->user->model() : $this->user;
     }
