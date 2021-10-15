@@ -27,7 +27,7 @@ class MagicLink extends Mailable
     public function __construct($user, ?string $redirect)
     {
         $this->redirect = $redirect;
-        $this->user = $user->fromUser($user);
+        $this->user = \Statamic\Facades\User::fromUser($user);
     }
 
     /**
