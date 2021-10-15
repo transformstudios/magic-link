@@ -24,10 +24,10 @@ class MagicLink extends Mailable
      *
      * @return void
      */
-    public function __construct(User $user, ?string $redirect)
+    public function __construct($user, ?string $redirect)
     {
         $this->redirect = $redirect;
-        $this->user = $user;
+        $this->user = $user->fromUser($user);
     }
 
     /**
@@ -55,7 +55,13 @@ class MagicLink extends Mailable
 
     private function addData(): self
     {
-        $generator = tap(new LoginUrl($this->user), function (LoginUrl $generator) {
+        if ($this->user instanceof \Statamic\Auth\Eloquent\User) {
+            $user = $this->user->model();
+        } else {
+            $user = $this->user;
+        }
+
+        $generator = tap(new LoginUrl($user), function (LoginUrl $generator) {
             $generator->setRedirectUrl($this->redirect());
         });
 
