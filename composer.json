@@ -4,7 +4,7 @@
         "php": "^7.4 || ^8.0",
         "edalzell/forma": "^1.0",
         "grosv/laravel-passwordless-login": "^1.6",
-        "laravel/framework": "^8.0",
+        "laravel/framework": "^8.0 || ^9.9",
         "statamic/cms": "^3.1"
     },
     "require-dev": {
